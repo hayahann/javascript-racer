@@ -5,6 +5,7 @@
   <title>Javascript Racer - v1 (straight)</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <link href="common.css" rel="stylesheet" type="text/css" />
+  <link href="joystick.css" rel="stylesheet" type="text/css" />
 </head> 
 
 <body> 
@@ -62,7 +63,7 @@
       <td><input id="fogDensity" type='range' min='0' max='50' title="integer (0-50)"></td>
     </tr>
   </table>
-
+    
   <div id='instructions'>
     <p>Use the <b>arrow keys</b> to drive the car.</p>
   </div>
@@ -202,6 +203,8 @@
                     0);
     }
 
+    
+
     //=========================================================================
     // BUILD ROAD GEOMETRY
     //=========================================================================
@@ -310,5 +313,20 @@
 
   </script>
 
+  <div class="joystick">
+  <svg class="joystick-outline" viewbox="-7 -7 310 310">
+      <path
+          d="M150,0 A150,150 0 1,1 150,300 A150,150 0 1,1 150,0"
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.4)"
+          stroke-width="5"
+          stroke-dasharray="205 30"
+          stroke-dashoffset="221"
+      />
+  </svg>
+  <div class="joystick-handle-container">
+      <div class="joystick-handle"></div>
+  </div>
+  <script src="joystick.js"></script>
 </body> 
 

@@ -106,6 +106,7 @@ var Game = {  // a modified version of the game loop from my previous boulderdas
       options.ready(images); // tell caller to initialize itself because images are loaded and we're ready to rumble
 
       Game.setKeyListener(options.keys);
+      // Game.setJoystickListener(options.keys);
 
       var canvas = options.canvas,    // canvas render target is provided by caller
           update = options.update,    // method to update game logic is provided by caller
@@ -155,6 +156,25 @@ var Game = {  // a modified version of the game loop from my previous boulderdas
   },
 
   //---------------------------------------------------------------------------
+  
+  // setJoystickListener: function(keys) {
+  //   var onkey = function(keyCode, mode) {
+  //     var n, k;
+  //     for(n = 0 ; n < keys.length ; n++) {
+  //       k = keys[n];
+  //       k.mode = k.mode || 'up';
+  //       if ((k.key == keyCode) || (k.keys && (k.keys.indexOf(keyCode) >= 0))) {
+  //         if (k.mode == mode) {
+  //           k.action.call();
+  //         }
+  //       }
+  //     }
+  //   };
+  //   Dom.on(document, 'keydown', function(ev) { onkey(ev.keyCode, 'down'); } );
+  //   Dom.on(document, 'keyup',   function(ev) { onkey(ev.keyCode, 'up');   } );
+  // },
+
+  //---------------------------------------------------------------------------
 
   setKeyListener: function(keys) {
     var onkey = function(keyCode, mode) {
@@ -171,6 +191,8 @@ var Game = {  // a modified version of the game loop from my previous boulderdas
     };
     Dom.on(document, 'keydown', function(ev) { onkey(ev.keyCode, 'down'); } );
     Dom.on(document, 'keyup',   function(ev) { onkey(ev.keyCode, 'up');   } );
+
+
   },
 
   //---------------------------------------------------------------------------
@@ -412,3 +434,87 @@ SPRITES.BILLBOARDS = [SPRITES.BILLBOARD01, SPRITES.BILLBOARD02, SPRITES.BILLBOAR
 SPRITES.PLANTS     = [SPRITES.TREE1, SPRITES.TREE2, SPRITES.DEAD_TREE1, SPRITES.DEAD_TREE2, SPRITES.PALM_TREE, SPRITES.BUSH1, SPRITES.BUSH2, SPRITES.CACTUS, SPRITES.STUMP, SPRITES.BOULDER1, SPRITES.BOULDER2, SPRITES.BOULDER3];
 SPRITES.CARS       = [SPRITES.CAR01, SPRITES.CAR02, SPRITES.CAR03, SPRITES.CAR04, SPRITES.SEMI, SPRITES.TRUCK];
 
+//--------------------------------------------------------------------
+
+// var Joystick = {
+//   const joyStickHandle = document.querySelector(".joystick-handle");
+//   const joyStickContainer = document.querySelector(".joystick");
+  
+//   joyStickContainer.addEventListener("pointerdown", handleJoystickStart);
+  
+//   handleJoystickStart: function (event) {
+//       console.log("PRESSED")
+      
+//       document.addEventListener("pointermove", handleJoystickMove);
+//       document.addEventListener("pointerup", handleJoystickEnd);
+//     },
+    
+    
+//     handleJoystickEnd: function () {
+//       document.removeEventListener("pointermove", handleJoystickMove);
+//       document.removeEventListener("pointerup", handleJoystickEnd);
+//     },
+  
+//     calculateAngle: function (centerX, centerY, pointX, pointY) {
+//       const deltaX = pointX - centerX;
+//       const deltaY = pointY - centerY;
+//       const angleInRadians = Math.atan2(deltaY, deltaX);
+//       let angleInDegrees = (angleInRadians * 180) / Math.PI + 90;
+//         if (angleInDegrees < 0) angleInDegrees += 360;
+//       return angleInDegrees;
+//     },
+  
+//     calculateCircleAngleAndDistance: function (clientX, clientY) {
+//       const { x, y, width, height } = joyStickContainer.getBoundingClientRect();
+    
+//       let distance = Math.sqrt(
+//         Math.pow(clientX - (x + width / 2), 2) +
+//           Math.pow(clientY - (y + height / 2), 2)
+//       );
+    
+//       distance = clamp(distance, 0, height / 2);
+    
+//       return {
+//         angle: calculateAngle(x + width / 2, y + height / 2, clientX, clientY),
+//         distance,
+//       };
+//     },
+  
+//     clamp: function (value, min, max) {
+//       return Math.min(Math.max(value, min), max);
+//     },
+  
+//     handleJoystickMove: function (event) {
+//       const { angle, distance } = calculateCircleAngleAndDistance(
+//           event.clientX,
+//           event.clientY 
+//       );
+    
+//       joyStickHandle.style.transform = `translateY(${-distance}px)`;
+//       joyStickHandle.parentElement.style.transform = `rotate(${angle}deg)`;
+  
+//       rad = angle * (Math.PI / 180);
+//       Horizontal = distance * Math.cos(rad);
+//       Vertical = distance * Math.sin(rad);
+  
+//       console.log(Horizontal, Vertical);
+      
+//     },
+  
+  
+//     handleJoystickStart: function (event) {
+//       handleJoystickMove(event);
+//       document.addEventListener("pointermove", handleJoystickMove);
+//       document.addEventListener("pointerup", handleJoystickEnd);
+//     },
+  
+  
+//     handleJoystickEnd: function () {
+//       joyStickHandle.style.transform = "";
+//       joyStickHandle.parentElement.style.transform = "";
+//       document.removeEventListener("pointermove", handleJoystickMove);
+//       document.removeEventListener("pointerup", handleJoystickEnd);
+//     }
+  
+  
+// };
