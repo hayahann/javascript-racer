@@ -75,6 +75,25 @@
     Loading...
   </div>
 
+  <div class="joystick">
+    <svg class="joystick-outline" viewbox="-7 -7 310 310">
+        <path
+            d="M150,0 A150,150 0 1,1 150,300 A150,150 0 1,1 150,0"
+            fill="none"
+            stroke="rgba(255, 255, 255, 0.4)"
+            stroke-width="5"
+            stroke-dasharray="205 30"
+            stroke-dashoffset="221"
+        />
+    </svg>
+    <div class="joystick-handle-container">
+        <div class="joystick-handle"></div>
+    </div>
+    <script src="joystick.js"></script>
+  </body> 
+  
+  
+
   <audio id='music'>
     <source src="music/racer.ogg">
     <source src="music/racer.mp3">
@@ -235,20 +254,22 @@
     //=========================================================================
     // THE GAME LOOP
     //=========================================================================
+    DIR_KEYS = [
+        { keys: [KEY.LEFT,  KEY.A], j: 'left',mode: 'down', action: function() { keyLeft   = true;  } },
+        { keys: [KEY.RIGHT, KEY.D], j: 'right',mode: 'down', action: function() { keyRight  = true;  } },
+        { keys: [KEY.UP,    KEY.W], j: 'up',mode: 'down', action: function() { keyFaster = true;  } },
+        { keys: [KEY.DOWN,  KEY.S], j: 'down',mode: 'down', action: function() { keySlower = true;  } },
+        { keys: [KEY.LEFT,  KEY.A], j: 'left',mode: 'up',   action: function() { keyLeft   = false; } },
+        { keys: [KEY.RIGHT, KEY.D], j: 'right',mode: 'up',   action: function() { keyRight  = false; } },
+        { keys: [KEY.UP,    KEY.W], j: 'up',mode: 'up',   action: function() { keyFaster = false; } },
+        { keys: [KEY.DOWN,  KEY.S], j: 'down',mode: 'up',   action: function() { keySlower = false; } }
+    ];
+    Joystick.JoyStickInitiate(DIR_KEYS);
 
     Game.run({
       canvas: canvas, render: render, update: update, stats: stats, step: step,
       images: ["background", "sprites"],
-      keys: [
-        { keys: [KEY.LEFT,  KEY.A], mode: 'down', action: function() { keyLeft   = true;  } },
-        { keys: [KEY.RIGHT, KEY.D], mode: 'down', action: function() { keyRight  = true;  } },
-        { keys: [KEY.UP,    KEY.W], mode: 'down', action: function() { keyFaster = true;  } },
-        { keys: [KEY.DOWN,  KEY.S], mode: 'down', action: function() { keySlower = true;  } },
-        { keys: [KEY.LEFT,  KEY.A], mode: 'up',   action: function() { keyLeft   = false; } },
-        { keys: [KEY.RIGHT, KEY.D], mode: 'up',   action: function() { keyRight  = false; } },
-        { keys: [KEY.UP,    KEY.W], mode: 'up',   action: function() { keyFaster = false; } },
-        { keys: [KEY.DOWN,  KEY.S], mode: 'up',   action: function() { keySlower = false; } }
-      ],
+      keys: DIR_KEYS,
       ready: function(images) {
         background = images[0];
         sprites    = images[1];
@@ -313,7 +334,7 @@
 
   </script>
 
-  <div class="joystick">
+  <!-- <div class="joystick">
   <svg class="joystick-outline" viewbox="-7 -7 310 310">
       <path
           d="M150,0 A150,150 0 1,1 150,300 A150,150 0 1,1 150,0"
@@ -329,4 +350,4 @@
   </div>
   <script src="joystick.js"></script>
 </body> 
-
+ -->
