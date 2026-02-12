@@ -110,6 +110,8 @@
   <script>
 
     var fps            = 60;                      // how many 'update' frames per second
+    var hitActive      = false;                       // this will update when you unlock powerup
+    var hitTimer       = 0;                       // this will update when you unlock powerup
     var step           = 1/fps;                   // how long is each frame (in seconds)
     var width          = 1024;                    // logical canvas width
     var height         = 768;                     // logical canvas height
@@ -171,14 +173,30 @@
     // UPDATE THE GAME WORLD
     //=========================================================================
 
-    function update(dt) {
 
+    function updateHitTimer(dt) {
+        //console.log("TEST ------------")
+        if (hitActive) {
+          console.log("TEST ------------ !!!!!!!!!!!!!!!!!!!!!!!!!!!!", hitTimer)
+          hitTimer += dt;
+          if (hitTimer > 10) {
+            console.log("10 seconds since obstacle hit!");
+            hitActive = false;
+          }
+        }
+      }
+
+
+    function update(dt) {
+      //console.log(dt)
       var n, car, carW, sprite, spriteW;
       var playerSegment = findSegment(position+playerZ);
       var playerW       = SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE;
       var speedPercent  = speed/maxSpeed;
       var dx            = dt * 2 * speedPercent; // at top speed, should be able to cross from left to right (-1 to 1) in 1 second
       var startPosition = position;
+
+      updateHitTimer(dt);
 
       updateCars(dt, playerSegment, playerW);
 
@@ -207,7 +225,7 @@
         for(n = 0 ; n < playerSegment.sprites.length ; n++) {
           sprite  = playerSegment.sprites[n];
           spriteW = sprite.source.w * SPRITES.SCALE;
-          if (Util.overlap(playerX, playerW, sprite.offset + spriteW/2 * (sprite.offset > 0 ? 1 : -1), spriteW)) {
+          if (Util.overlap(playerX, playerW, sprite.offset + spriteW/2 * (sprite.offset > 0 ? 1 : -1), spriteW) && hitActive === false) {
             speed = maxSpeed/5;
             position = Util.increase(playerSegment.p1.world.z, -playerZ, trackLength); // stop in front of sprite (at front of segment)
             break;
@@ -238,8 +256,11 @@
           //   // collision response...
           // }
           if (Util.overlap(playerX, playerW, obstacle.offset + obstacleW/2 * (obstacle.offset > 0 ? 1 : -1), obstacleW)) {
-            speed = maxSpeed/5;
-            position = Util.increase(playerSegment.p1.world.z, -playerZ, trackLength); // stop in front of obstacle (at front of segment)
+
+            console.log("HIT");
+            hitActive = true; // this flag is for when you hit happy meal boost
+            //speed = maxSpeed/5;
+            //position = Util.increase(playerSegment.p1.world.z, -playerZ, trackLength); // stop in front of obstacle (at front of segment)
             break;
           }
         }
@@ -268,7 +289,7 @@
           // collision response...
         }
         if (Util.overlap(playerX, playerW, powerup.offset + powerupW/2 * (powerup.offset > 0 ? 1 : -1), powerupW)) {
-          //speed = maxSpeed/5;
+          speed = maxSpeed*1.5; // speed boost when you go through this
           playerSegment.powerups.splice(n, 1);
           //position = Util.increase(playerSegment.p1.world.z, -playerZ, trackLength); // stop in front of obstacle (at front of segment)
           break;

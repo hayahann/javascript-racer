@@ -286,6 +286,7 @@ var Game = {  // a modified version of the game loop from my previous boulderdas
           dt     = 0,
           gdt    = 0;
 
+
       function frame() {
         now = Util.timestamp();
         dt  = Math.min(1, (now - last) / 1000); // using requestAnimationFrame have to be able to handle large delta's caused when it 'hibernates' in a background or non-visible tab
