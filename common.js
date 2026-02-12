@@ -69,7 +69,7 @@ var Joystick = {
 
     
   handleKeyOptions: function (keys, x, y, mode) {
-    console.log(x, y)
+    //console.log(x, y)
     for (let n = 0; n < keys.length; n++) {
       const k = keys[n];
 
@@ -270,6 +270,7 @@ var Game = {  // a modified version of the game loop from my previous boulderdas
 
       options.ready(images); // tell caller to initialize itself because images are loaded and we're ready to rumble
 
+
       //Game.setKeyListener(options.keys);
       //Joystick.joyStickContainer.addEventListener("pointerdown", (event) => Joystick.handleJoystickStart(event, options.keys))
 
@@ -313,6 +314,12 @@ var Game = {  // a modified version of the game loop from my previous boulderdas
       if (--count == 0)
         callback(result);
     };
+
+
+    // const img = document.createElement("img");
+    // console.log(img instanceof HTMLElement);   // should be true
+    // console.log(img);                          // inspect i
+    
 
     for(var n = 0 ; n < names.length ; n++) {
       var name = names[n];
@@ -469,12 +476,32 @@ var Render = {
 
     destX = destX + (destW * (offsetX || 0));
     destY = destY + (destH * (offsetY || 0));
-
     var clipH = clipY ? Math.max(0, destY+destH-clipY) : 0;
     if (clipH < destH)
       ctx.drawImage(sprites, sprite.x, sprite.y, sprite.w, sprite.h - (sprite.h*clipH/destH), destX, destY, destW, destH - clipH);
 
   },
+
+  obstacle: function(ctx, width, height, resolution, roadWidth, sprites, sprite, scale, destX, destY, offsetX, offsetY, clipY) {
+    //  scale for projection AND relative to roadWidth (for tweakUI)
+    var destW  = (sprite.w * scale * width/2) * (SPRITES.SCALE * roadWidth);
+    var destH  = (sprite.h * scale * width/2) * (SPRITES.SCALE * roadWidth);
+
+    destX = destX + (destW * (offsetX || 0));
+    destY = destY + (destH * (offsetY || 0));
+
+    //console.log(sprites)
+    // console.log(
+    //   "[diag] sprites:", sprites,
+    //   "isImg:", sprites instanceof HTMLImageElement,
+    //   "loaded:", sprites?.complete, "nw:", sprites?.naturalWidth
+    // );
+
+    var clipH = clipY ? Math.max(0, destY+destH-clipY) : 0;
+    if (clipH < destH)
+      ctx.drawImage(sprites, sprite.x, sprite.y, sprite.w, sprite.h - (sprite.h*clipH/destH), destX, destY, destW, destH - clipH);
+
+    },
 
   //---------------------------------------------------------------------------
 
@@ -539,6 +566,10 @@ var BACKGROUND = {
   TREES: { x:   5, y: 985, w: 1280, h: 480 }
 };
 
+var OBSTACLES = {
+  HAPPYMEAL:              { x: 0, y:  0, w:   1500, h:   1000 } // HAPPY MEAL
+};
+
 var SPRITES = {
   PALM_TREE:              { x:    5, y:    5, w:  215, h:  540 },
   BILLBOARD08:            { x:  230, y:    5, w:  385, h:  265 },
@@ -577,6 +608,7 @@ var SPRITES = {
 };
 
 SPRITES.SCALE = 0.3 * (1/SPRITES.PLAYER_STRAIGHT.w) // the reference sprite width should be 1/3rd the (half-)roadWidth
+OBSTACLES.SCALE = 0.2 * (1/SPRITES.PLAYER_STRAIGHT.w) // the reference sprite width should be 1/3rd the (half-)roadWidth
 
 SPRITES.BILLBOARDS = [SPRITES.BILLBOARD01, SPRITES.BILLBOARD02, SPRITES.BILLBOARD03, SPRITES.BILLBOARD04, SPRITES.BILLBOARD05, SPRITES.BILLBOARD06, SPRITES.BILLBOARD07, SPRITES.BILLBOARD08, SPRITES.BILLBOARD09];
 SPRITES.PLANTS     = [SPRITES.TREE1, SPRITES.TREE2, SPRITES.DEAD_TREE1, SPRITES.DEAD_TREE2, SPRITES.PALM_TREE, SPRITES.BUSH1, SPRITES.BUSH2, SPRITES.CACTUS, SPRITES.STUMP, SPRITES.BOULDER1, SPRITES.BOULDER2, SPRITES.BOULDER3];

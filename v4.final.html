@@ -5,6 +5,7 @@
   <title>Javascript Racer - v4 (final)</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <link href="common.css" rel="stylesheet" type="text/css" />
+  <link href="joystick.css" rel="stylesheet" type="text/css" />
 </head> 
 
 <body> 
@@ -80,6 +81,24 @@
     Loading...
   </div>
 
+  <div class="joystick">
+    <svg class="joystick-outline" viewbox="-7 -7 310 310">
+        <path
+            d="M150,0 A150,150 0 1,1 150,300 A150,150 0 1,1 150,0"
+            fill="none"
+            stroke="rgba(255, 255, 255, 0.4)"
+            stroke-width="5"
+            stroke-dasharray="205 30"
+            stroke-dashoffset="221"
+        />
+    </svg>
+    <div class="joystick-handle-container">
+        <div class="joystick-handle"></div>
+    </div>
+    <script src="joystick.js"></script>
+  </body> 
+  
+
   <audio id='music'>
     <source src="music/racer.ogg">
     <source src="music/racer.mp3">
@@ -109,6 +128,7 @@
     var ctx            = canvas.getContext('2d'); // ...and its drawing context
     var background     = null;                    // our background image (loaded below)
     var sprites        = null;                    // our spritesheet (loaded below)
+    var obstacles      = null;                    // our obstacles (loaded below)
     var resolution     = null;                    // scaling factor to provide resolution independence (computed)
     var roadWidth      = 2000;                    // actually half the roads width, easier math if the road spans from -roadWidth to +roadWidth
     var segmentLength  = 200;                     // length of a single segment
@@ -390,12 +410,30 @@
         }
 
         for(i = 0 ; i < segment.sprites.length ; i++) {
+          //console.log(segment.sprites[i])
           sprite      = segment.sprites[i];
           spriteScale = segment.p1.screen.scale;
           spriteX     = segment.p1.screen.x + (spriteScale * sprite.offset * roadWidth * width/2);
           spriteY     = segment.p1.screen.y;
+          // this is the loop that renders sprites!!!
           Render.sprite(ctx, width, height, resolution, roadWidth, sprites, sprite.source, spriteScale, spriteX, spriteY, (sprite.offset < 0 ? -1 : 0), -1, segment.clip);
         }
+
+        for(i = 0 ; i < segment.obstacles.length ; i++) {
+
+          obstacle      = segment.obstacles[i];
+          obstacleScale = segment.p1.screen.scale*0.1;
+          obstacleX     = segment.p1.screen.x + (obstacleScale * obstacle.offset * roadWidth * width/2);
+          obstacleY     = segment.p1.screen.y;
+          // this is the loop that renders sprites!!!
+          if (i = 1 && playerX) {
+            console.log(obstacleX, obstacleY)
+            console.log(playerX, playerY)
+          }
+
+          Render.obstacle(ctx, width, height, resolution, roadWidth, obstacles, obstacle.source, obstacleScale, obstacleX, obstacleY, (obstacle.offset < 0 ? -1 : 0), -1, segment.clip);
+        }
+
 
         if (segment == playerSegment) {
           Render.player(ctx, width, height, resolution, roadWidth, sprites, speed/maxSpeed,
@@ -427,8 +465,13 @@
           curve: curve,
         sprites: [],
            cars: [],
+      obstacles: [],
           color: Math.floor(n/rumbleLength)%2 ? COLORS.DARK : COLORS.LIGHT
       });
+    }
+    // HANNAH ADDED
+    function addObstacle(n, sprite, offset) {
+      segments[n].obstacles.push({ source: sprite, offset: offset });
     }
 
     function addSprite(n, sprite, offset) {
@@ -529,7 +572,9 @@
       addDownhillToEnd();
 
       resetSprites();
-      resetCars();
+      resetObstacles();
+      //resetPowerUps();
+      //resetCars();
 
       segments[findSegment(playerZ).index + 2].color = COLORS.START;
       segments[findSegment(playerZ).index + 3].color = COLORS.START;
@@ -538,6 +583,27 @@
 
       trackLength = segments.length * segmentLength;
     }
+
+    function resetObstacles() {
+      var n;
+      for(n = 20 ; n < 500 ; n += 20) {
+        //addSprite(n,     OBSTACLES.HAPPYMEAL, 1.1);
+        addObstacle(n + Util.randomInt(0,5), OBSTACLES.HAPPYMEAL, -1 - (Math.random() * 2));
+        //addObstacle(n,     OBSTACLES.HAPPYMEAL, 1.1);
+        //addSprite(n + Util.randomInt(0,5), SPRITES.STUMP, -1 - (Math.random() * 2));
+        //addSprite(n + Util.randomInt(0,5), OBSTACLES.HAPPYMEAL, -1 - (Math.random() * 2));
+    }
+  }
+
+    
+    function resetPowerUps() {
+      var n;
+      for(n = 250 ; n < 1000 ; n += 5) {
+        addSprite(n,     SPRITES.COLUMN, 1.1);
+        addSprite(n + Util.randomInt(0,5), SPRITES.TREE1, -1 - (Math.random() * 2));
+        addSprite(n + Util.randomInt(0,5), SPRITES.TREE2, -1 - (Math.random() * 2));
+    }
+  }
 
     function resetSprites() {
       var n, i;
@@ -605,22 +671,27 @@
     // THE GAME LOOP
     //=========================================================================
 
+    DIR_KEYS = [
+        { keys: [KEY.LEFT,  KEY.A], j: 'left',mode: 'down', action: function() { keyLeft   = true;  } },
+        { keys: [KEY.RIGHT, KEY.D], j: 'right',mode: 'down', action: function() { keyRight  = true;  } },
+        { keys: [KEY.UP,    KEY.W], j: 'up',mode: 'down', action: function() { keyFaster = true;  } },
+        { keys: [KEY.DOWN,  KEY.S], j: 'down',mode: 'down', action: function() { keySlower = true;  } },
+        { keys: [KEY.LEFT,  KEY.A], j: 'left',mode: 'up',   action: function() { keyLeft   = false; } },
+        { keys: [KEY.RIGHT, KEY.D], j: 'right',mode: 'up',   action: function() { keyRight  = false; } },
+        { keys: [KEY.UP,    KEY.W], j: 'up',mode: 'up',   action: function() { keyFaster = false; } },
+        { keys: [KEY.DOWN,  KEY.S], j: 'down',mode: 'up',   action: function() { keySlower = false; } }
+    ];
+    Joystick.JoyStickInitiate(DIR_KEYS);
+
     Game.run({
       canvas: canvas, render: render, update: update, stats: stats, step: step,
-      images: ["background", "sprites"],
-      keys: [
-        { keys: [KEY.LEFT,  KEY.A], mode: 'down', action: function() { keyLeft   = true;  } },
-        { keys: [KEY.RIGHT, KEY.D], mode: 'down', action: function() { keyRight  = true;  } },
-        { keys: [KEY.UP,    KEY.W], mode: 'down', action: function() { keyFaster = true;  } },
-        { keys: [KEY.DOWN,  KEY.S], mode: 'down', action: function() { keySlower = true;  } },
-        { keys: [KEY.LEFT,  KEY.A], mode: 'up',   action: function() { keyLeft   = false; } },
-        { keys: [KEY.RIGHT, KEY.D], mode: 'up',   action: function() { keyRight  = false; } },
-        { keys: [KEY.UP,    KEY.W], mode: 'up',   action: function() { keyFaster = false; } },
-        { keys: [KEY.DOWN,  KEY.S], mode: 'up',   action: function() { keySlower = false; } }
-      ],
+      images: ["background", "sprites", "obstacles"],//, "obstacles"],
+      keys: DIR_KEYS,
       ready: function(images) {
         background = images[0];
         sprites    = images[1];
+        obstacles = images[2];
+        //powerUps = images[3];
         reset();
         Dom.storage.fast_lap_time = Dom.storage.fast_lap_time || 180;
         updateHud('fast_lap_time', formatTime(Util.toFloat(Dom.storage.fast_lap_time)));
@@ -678,7 +749,7 @@
       Dom.get('currentDrawDistance').innerHTML   = Dom.get('drawDistance').value   = drawDistance;
       Dom.get('currentFieldOfView').innerHTML    = Dom.get('fieldOfView').value    = fieldOfView;
       Dom.get('currentFogDensity').innerHTML     = Dom.get('fogDensity').value     = fogDensity;
-    }
+    };
 
     //=========================================================================
 

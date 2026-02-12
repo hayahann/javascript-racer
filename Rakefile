@@ -11,6 +11,10 @@ task 'resprite' do
     SpriteHelper.javascript_style("BACKGROUND", images)
   end
 
+  SpriteFactory.run!('images/obstacles', :layout => :packed, :output_style => 'images/obstacles.js', :margin => 5, :nocomments => true) do |images|
+    SpriteHelper.javascript_style("OBSTACLES", images)
+  end
+
 end
 
 #------------------------------------------------------------------------------
