@@ -15,6 +15,10 @@ task 'resprite' do
     SpriteHelper.javascript_style("OBSTACLES", images)
   end
 
+  SpriteFactory.run!('images/powerups', :layout => :packed, :output_style => 'images/powerups.js', :margin => 5, :nocomments => true) do |images|
+    SpriteHelper.javascript_style("POWERUPS", images)
+  end
+
 end
 
 #------------------------------------------------------------------------------

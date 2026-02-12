@@ -129,6 +129,7 @@
     var background     = null;                    // our background image (loaded below)
     var sprites        = null;                    // our spritesheet (loaded below)
     var obstacles      = null;                    // our obstacles (loaded below)
+    var powerups       = null;                    // our powerups (loaded below)
     var resolution     = null;                    // scaling factor to provide resolution independence (computed)
     var roadWidth      = 2000;                    // actually half the roads width, easier math if the road spans from -roadWidth to +roadWidth
     var segmentLength  = 200;                     // length of a single segment
@@ -221,29 +222,59 @@
           obstacleW = obstacle.source.w * OBSTACLES.SCALE;
           const playerCenter   = playerX;
           const obstacleCenter = obstacle.offset ;
-          console.log("overlap test:", {
-        
-          playerCenter,
-          playerW,
-          obstacleCenter,
-          obstacleW,
-          min1: playerCenter - playerW/2,
-          max1: playerCenter + playerW/2,
-          min2: obstacleCenter - obstacleW/2,
-          max2: obstacleCenter + obstacleW/2
-          });
+          // console.log("overlap test:", {
+          // playerCenter,
+          // playerW,
+          // obstacleCenter,
+          // obstacleW,
+          // min1: playerCenter - playerW/2,
+          // max1: playerCenter + playerW/2,
+          // min2: obstacleCenter - obstacleW/2,
+          // max2: obstacleCenter + obstacleW/2
+          // });
 
-          if (Util.overlap(playerCenter, playerW, obstacleCenter, obstacleW)) {
-            console.log("HIT");
-            // collision response...
-          }
-
+          // if (Util.overlap(playerCenter, playerW, obstacleCenter, obstacleW)) {
+          //   console.log("HIT");
+          //   // collision response...
+          // }
           if (Util.overlap(playerX, playerW, obstacle.offset + obstacleW/2 * (obstacle.offset > 0 ? 1 : -1), obstacleW)) {
             speed = maxSpeed/5;
             position = Util.increase(playerSegment.p1.world.z, -playerZ, trackLength); // stop in front of obstacle (at front of segment)
             break;
           }
         }
+
+      // HANNAH ADDED THIS
+      //for(n = 0 ; n < playerSegment.powerups.length ; n++) {
+      n = 0 
+      while (n < playerSegment.powerups.length) {
+        powerup  = playerSegment.powerups[n];
+        powerupW = obstacle.source.w * POWERUPS.SCALE;
+        const playerCenter   = playerX;
+        const powerupCenter = powerup.offset ;
+        // console.log("overlap test:", {
+        // playerCenter,
+        // playerW,
+        // obstacleCenter,
+        // obstacleW,
+        // min1: playerCenter - playerW/2,
+        // max1: playerCenter + playerW/2,
+        // min2: obstacleCenter - obstacleW/2,
+        // max2: obstacleCenter + obstacleW/2
+        // });
+
+        if (Util.overlap(playerCenter, playerW, powerupCenter, powerupW)) {
+          console.log("HIT");
+          // collision response...
+        }
+        if (Util.overlap(playerX, playerW, powerup.offset + powerupW/2 * (powerup.offset > 0 ? 1 : -1), powerupW)) {
+          //speed = maxSpeed/5;
+          playerSegment.powerups.splice(n, 1);
+          //position = Util.increase(playerSegment.p1.world.z, -playerZ, trackLength); // stop in front of obstacle (at front of segment)
+          break;
+        }
+        n++;
+      }
 
       for(n = 0 ; n < playerSegment.cars.length ; n++) {
         car  = playerSegment.cars[n];
@@ -463,6 +494,17 @@
         }
 
 
+        for(i = 0 ; i < segment.powerups.length ; i++) {
+          powerup      = segment.powerups[i];
+          powerupScale = segment.p1.screen.scale*0.1;
+          powerupX     = segment.p1.screen.x + (powerupScale * powerup.offset * roadWidth * width/2);
+          powerupY     = segment.p1.screen.y;
+          // this is the loop that renders sprites!!!
+          //console.log(obstacleX, obstacleY)
+          Render.powerup(ctx, width, height, resolution, roadWidth, powerups, powerup.source, powerupScale, powerupX, powerupY, (powerup.offset < 0 ? -1 : 0), -1, segment.clip);
+          }
+
+
         if (segment == playerSegment) {
           Render.player(ctx, width, height, resolution, roadWidth, sprites, speed/maxSpeed,
                         cameraDepth/playerZ,
@@ -494,6 +536,7 @@
         sprites: [],
            cars: [],
       obstacles: [],
+      powerups:  [],
           color: Math.floor(n/rumbleLength)%2 ? COLORS.DARK : COLORS.LIGHT
       });
     }
@@ -501,6 +544,11 @@
     function addObstacle(n, sprite, offset) {
       segments[n].obstacles.push({ source: sprite, offset: offset });
     }
+
+    function addPowerups(n, powerup, offset) {
+      segments[n].powerups.push({ source: powerup, offset: offset });
+    }
+
 
     function addSprite(n, sprite, offset) {
       segments[n].sprites.push({ source: sprite, offset: offset });
@@ -601,7 +649,7 @@
 
       resetSprites();
       resetObstacles();
-      //resetPowerUps();
+      resetPowerUps();
       resetCars();
 
       segments[findSegment(playerZ).index + 2].color = COLORS.START;
@@ -611,6 +659,13 @@
 
       trackLength = segments.length * segmentLength;
     }
+    
+    function resetPowerUps() {
+      var n;
+      for(n = 20 ; n < 500 ; n += 20) {
+        addPowerups(n + Util.randomInt(0,5), POWERUPS.DUMBBELL,  Math.random() * Util.randomChoice([-0.8, 0.8]))//, -1 - (Math.random() * 2));
+    }
+  }
 
     function resetObstacles() {
       var n;
@@ -623,16 +678,7 @@
     }
   }
 
-    
-    function resetPowerUps() {
-      var n;
-      for(n = 250 ; n < 1000 ; n += 5) {
-        addSprite(n,     SPRITES.COLUMN, 1.1);
-        addSprite(n + Util.randomInt(0,5), SPRITES.TREE1, -1 - (Math.random() * 2));
-        addSprite(n + Util.randomInt(0,5), SPRITES.TREE2, -1 - (Math.random() * 2));
-    }
-  }
-
+  
     function resetSprites() {
       var n, i;
 
@@ -713,13 +759,13 @@
 
     Game.run({
       canvas: canvas, render: render, update: update, stats: stats, step: step,
-      images: ["background", "sprites", "obstacles"],//, "obstacles"],
+      images: ["background", "sprites", "obstacles", "powerups"],
       keys: DIR_KEYS,
       ready: function(images) {
         background = images[0];
         sprites    = images[1];
         obstacles = images[2];
-        //powerUps = images[3];
+        powerups = images[3];
         reset();
         Dom.storage.fast_lap_time = Dom.storage.fast_lap_time || 180;
         updateHud('fast_lap_time', formatTime(Util.toFloat(Dom.storage.fast_lap_time)));
