@@ -483,6 +483,20 @@ var Render = {
 
   },
 
+  billboard: function(ctx, width, height, resolution, roadWidth, sprites, sprite, scale, destX, destY, offsetX, offsetY, clipY) {
+    //  scale for projection AND relative to roadWidth (for tweakUI)
+    var destW  = (sprite.w * scale * width/2) * (SPRITES.SCALE * roadWidth);
+    var destH  = (sprite.h * scale * width/2) * (SPRITES.SCALE * roadWidth);
+
+    destX = destX + (destW * (offsetX || 0));
+    destY = destY + (destH * (offsetY || 0));
+
+    var clipH = clipY ? Math.max(0, destY+destH-clipY) : 0;
+    if (clipH < destH)
+      ctx.drawImage(sprites, sprite.x, sprite.y, sprite.w, sprite.h - (sprite.h*clipH/destH), destX, destY, destW, destH - clipH);
+
+    },
+
   powerup: function(ctx, width, height, resolution, roadWidth, sprites, sprite, scale, destX, destY, offsetX, offsetY, clipY) {
     //  scale for projection AND relative to roadWidth (for tweakUI)
     var destW  = (sprite.w * scale * width/2) * (SPRITES.SCALE * roadWidth);
@@ -576,8 +590,8 @@ var COLORS = {
 };
 
 var BACKGROUND = {
-  HILLS: { x:   5, y:   5, w: 1280, h: 480 },
-  SKY:   { x:   5, y: 495, w: 1280, h: 480 },
+  HILLS: { x:    5, y:    5, w: 1280, h:  350 },
+  SKY:   { x:   5, y: 300, w: 500, h: 150 },
   TREES: { x:   5, y: 985, w: 1280, h: 480 }
 };
 
@@ -589,6 +603,16 @@ var POWERUPS = {
   DUMBBELL:              { x: 0, y:  0, w:   1500, h:   1000 },//{ x: 0, y:  0, w:   1500, h:   1000 } // HAPPY MEAL
   HAPPYMEAL:              { x: 0, y:  0, w:   1500, h:   1000 }
 };
+
+var BILLBOARDS = {
+
+  BILLBOARD01:            { x:  0, y:  0, w:  170, h:  250 },
+  BILLBOARD02:            { x:  170, y:  0, w:  170, h:  250 },
+  BILLBOARD03:            { x:  0, y:  260, w:  170, h:  150 },
+  BILLBOARD04:            { x:  170, y:  260, w:  170, h:  150 },
+  BILLBOARD05:            { x:  0, y:  400, w:  170, h:  150 },
+  BILLBOARD06:            { x:  170, y:  400, w:  170, h:  150 },
+}
 
 var SPRITES = {
   PALM_TREE:              { x:    5, y:    5, w:  215, h:  540 },
@@ -630,6 +654,7 @@ var SPRITES = {
 SPRITES.SCALE = 0.3 * (1/SPRITES.PLAYER_STRAIGHT.w) // the reference sprite width should be 1/3rd the (half-)roadWidth
 OBSTACLES.SCALE = 0.3 * (1/SPRITES.PLAYER_STRAIGHT.w) // the reference sprite width should be 1/3rd the (half-)roadWidth
 POWERUPS.SCALE = 0.3 * (1/SPRITES.PLAYER_STRAIGHT.w) // the reference sprite width should be 1/3rd the (half-)roadWidth
+BILLBOARDS.SCALE = 0.3 * (1/SPRITES.PLAYER_STRAIGHT.w) // the reference sprite width should be 1/3rd the (half-)roadWidth
 
 SPRITES.BILLBOARDS = [SPRITES.BILLBOARD01, SPRITES.BILLBOARD02, SPRITES.BILLBOARD03, SPRITES.BILLBOARD04, SPRITES.BILLBOARD05, SPRITES.BILLBOARD06, SPRITES.BILLBOARD07, SPRITES.BILLBOARD08, SPRITES.BILLBOARD09];
 SPRITES.PLANTS     = [SPRITES.TREE1, SPRITES.TREE2, SPRITES.DEAD_TREE1, SPRITES.DEAD_TREE2, SPRITES.PALM_TREE, SPRITES.BUSH1, SPRITES.BUSH2, SPRITES.CACTUS, SPRITES.STUMP, SPRITES.BOULDER1, SPRITES.BOULDER2, SPRITES.BOULDER3];
